@@ -190,7 +190,7 @@ async function exportCleanedDataToExcelMain(jsonData, outputPath) {
 function createWindow() {
     // ... (Tu función createWindow es perfecta, no necesita cambios)
     const mainWindow = new BrowserWindow({
-        width: 1280, height: 800, minWidth: 800, minHeight: 600, show: false,
+        width: 200, height: 500, minWidth: 400, minHeight: 500, show: false,
         webPreferences: {
             // Asegúrate de que el nombre del preload script coincida con el que creamos
             preload: path.join(__dirname, 'preload.js'), // Nombre estandarizado
