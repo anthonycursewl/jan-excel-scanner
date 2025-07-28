@@ -1,6 +1,6 @@
 # Procesador de Excel a SQL Server
 
-Aplicación de escritorio construida con Electron para limpiar archivos Excel y enviar los datos a una base de datos SQL Server.
+Aplicación de escritorio construida con Electron para limpiar archivos Excel y enviar los datos a una base de datos SQL Server. (with actions)
 
 ## Características
 
