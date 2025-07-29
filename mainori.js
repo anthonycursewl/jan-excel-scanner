@@ -174,7 +174,7 @@ async function exportCleanedDataToExcelMain(jsonData, outputPath) {
  */
 function createWindow() {
     const mainWindow = new BrowserWindow({
-        width: 1280, height: 800, minWidth: 800, minHeight: 600, show: false,
+        width: 200, height: 500, minWidth: 400, minHeight: 500, show: false,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false, contextIsolation: true, sandbox: true, enableRemoteModule: false
