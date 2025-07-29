@@ -176,7 +176,7 @@ function createWindow() {
     
     mainWindow.once('ready-to-show', () => {
         mainWindow.show();
-        if (process.env.NODE_ENV === 'development') {
+        if (process.env.APP_STATUS === 'dev') {
             mainWindow.webContents.openDevTools({ mode: 'detach' });
         }
     });
@@ -227,12 +227,9 @@ ipcMain.handle('process-excel-and-export', async (event, filePath) => {
         return { success: true, outputPath: savedPath, processedRows: cleanedData.length };
     } catch (error) {
         console.error('Error al procesar el archivo:', error);
-        return { success: false, error: error.message, stack: process.env.NODE_ENV === 'development' ? error.stack : undefined };
+        return { success: false, error: error.message, stack: process.env.APP_STATUS === 'dev' ? error.stack : undefined };
     }
 });
-
-
-
 
 /**
  * Manejador para leer un archivo Excel y devolver los datos en formato JSON.
@@ -308,7 +305,6 @@ function executeBulkInsert(connection, data, resolve) {
         }
     );
 
-    // Definir los tipos de datos para un rendimiento y seguridad óptimos.
     request.addParameter('item', TYPES.Int);
     request.addParameter('n_partida', TYPES.NVarChar);
     request.addParameter('nombre_del_articulo', TYPES.NVarChar);
@@ -316,9 +312,8 @@ function executeBulkInsert(connection, data, resolve) {
     request.addParameter('colores', TYPES.NVarChar);
     request.addParameter('cod_colores', TYPES.Int);
     request.addParameter('pqt', TYPES.Int);
-    request.addParameter('kg', TYPES.Decimal, { precision: 18, scale: 2 }); // Ideal para números con decimales.
+    request.addParameter('kg', TYPES.Decimal, { precision: 18, scale: 2 });
 
-    // Tedious espera un array de arrays para el bulk load.
     data.forEach(item => {
         request.addRow(
             item.item,
