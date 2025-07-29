@@ -1,5 +1,4 @@
-// Utilidades
-export const isApiReady = () => {
+const isApiReady = () => {
     return window.api && window.api.openFileDialog && window.api.processExcelAndExport;
 };
 
@@ -11,7 +10,6 @@ const colors = {
     default: 'black'
 };
 
-// Función para crear el elemento de estado si no existe
 const createStatusMessage = () => {
     const statusMessage = document.createElement('p');
     statusMessage.id = 'statusMessage';
@@ -19,15 +17,14 @@ const createStatusMessage = () => {
     return statusMessage;
 };
 
-export const showStatus = (message, type = 'info') => {
+const showStatus = (message, type = 'info') => {
     const statusMessage = document.getElementById('statusMessage') || createStatusMessage();
     statusMessage.textContent = message;
     statusMessage.style.color = colors[type] || colors.default;
     statusMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 };
 
-// Función principal para manejar el proceso
-export const handleTabularClick = async () => {
+const handleTabularClick = async () => {
     console.log("Iniciando proceso de tabulación...");
     showStatus('Iniciando selección y procesamiento de Excel...', 'info');
 
@@ -60,11 +57,9 @@ export const handleTabularClick = async () => {
     }
 };
 
-// Inicialización
-export const initTabular = () => {
+const initTabular = () => {
     document.addEventListener('DOMContentLoaded', () => {
         const tabularButton = document.getElementById('Tabular');
-        const statusMessage = document.getElementById('statusMessage');
 
         if (!tabularButton) {
             console.error('Error: No se encontró el botón con id "Tabular".');

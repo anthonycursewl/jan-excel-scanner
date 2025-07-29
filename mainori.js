@@ -159,15 +159,15 @@ function createWindow() {
         minHeight: MAIN_CONFIG.WINDOWS_SIZE.height, 
         show: false,
         webPreferences: {
-            preload: path.join(__dirname, 'preload.js'),
+            preload: path.join(__dirname, 'preload.cjs'),
             nodeIntegration: false,
             contextIsolation: true,
-            sandbox: true,
             enableRemoteModule: false,
             nodeIntegrationInWorker: false,
             nodeIntegrationInSubFrames: false,
             webSecurity: true,
-            allowRunningInsecureContent: false
+            allowRunningInsecureContent: false,
+            sandbox: false
         },
         icon: path.join(__dirname, 'assets/icon.png')
     });
@@ -289,12 +289,11 @@ ipcMain.handle('send-data-to-db', async (event, data) => {
  * @param {Function} resolve - La función para resolver la promesa del manejador IPC.
  */
 function executeBulkInsert(connection, data, resolve) {
-    // Asegúrate de que el nombre de la tabla ('PackingItems') y las columnas coinciden con tu base de datos.
     const request = new Request(
         `INSERT INTO PackingItems (item, n_partida, nombre_del_articulo, articulo_descripcion, colores, cod_colores, pqt, kg) 
          VALUES (@item, @n_partida, @nombre_del_articulo, @articulo_descripcion, @colores, @cod_colores, @pqt, @kg)`,
         (err, rowCount) => {
-            connection.close(); // Cierra la conexión al terminar o en caso de error.
+            connection.close();
             if (err) {
                 console.error('Error en Bulk Insert:', err);
                 resolve({ success: false, error: `Error al insertar datos: ${err.message}` });

@@ -1,14 +1,12 @@
-body{
-background: radial-gradient(#fcf4e4, #f1ddb4);
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-header{
-    background-color: #b3b0b0;
-    display: flex;
-    justify-self: center;
-    justify-content: center;
-    width: 300px;
-    border: #f5d694 solid;   
+body {
+    background: #fafafa;
 }
 
 h1{
@@ -16,36 +14,44 @@ h1{
     text-align: center;
 }
 
-button:hover{
-    color: white;
-    background-color: #7c6d1ae8;
-    box-shadow:  0 0 15px #dfbd73;
-}
 
-button{
-    display: flex;
-    justify-self: center;
-    gap: 30%;
-    margin: 10%; 
-    border-radius: 10px;
-}
-button:active{
-   background-color:  #b6a338e8;
-}
-
-
-
-#cleanedFilePathDisplay{
+#cleanedFilePathDisplay {
     display: flex;
     font-size: 0.9em; color: black;
     text-align: center;
 }
 
-#statusMessage{
+#statusMessage {
     display: flex;
     justify-self: center;
 }
 
-#cleanedFilePathDisplay{
+#cleanedFilePathDisplay {
     justify-self: center;
 }
+
+/* button styles */
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 1rem;
+    gap: 1rem;
+}
+
+.button-container button {
+    width: 100%;
+}
+
+/* button styles */
+
+/* status styles */
+
+.header-app {
+    margin-top: 1rem;
+    padding: 1rem;
+    font-size: .9rem;
+}
+
+/* status styles */
