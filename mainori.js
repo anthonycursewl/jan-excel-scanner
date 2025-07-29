@@ -2,12 +2,9 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('node:path');
 const fs = require('fs').promises;
 const ExcelJS = require('exceljs');
-// ---> INICIO: Nuevos 'requires' para la base de datos y el sistema
 const { Connection, Request, TYPES } = require('tedious');
 const os = require('os');
-// ---> FIN: Nuevos 'requires'
 
-// Constantes para configuración
 const CONFIG = {
     ROWS_TO_SKIP: 3,
     REQUIRED_FIELDS: ['item', 'n_partida', 'nombre_del_articulo'],
@@ -15,11 +12,8 @@ const CONFIG = {
     OUTPUT_FILENAME: 'PACKING_limpio.xlsx'
 };
 
-// ---> INICIO: Configuración de la Base de Datos
-// ¡MUY IMPORTANTE! Reemplaza estos valores con tus credenciales reales.
-// Para mayor seguridad en producción, considera usar variables de entorno o un sistema de gestión de secretos.
 const dbConfig = {
-    server: 'TU_SERVIDOR_SQL', // Ejemplo: 'localhost' o 'servidor.database.windows.net'
+    server: 'TU_SERVIDOR_SQL',
     authentication: {
         type: 'default',
         options: {
@@ -28,17 +22,11 @@ const dbConfig = {
         }
     },
     options: {
-        encrypt: true, // Requerido para Azure SQL, puede ser false para servidores locales sin SSL.
+        encrypt: true,
         database: 'TU_BASE_DE_DATOS',
-        trustServerCertificate: true // Poner en 'false' en producción si tienes un certificado de servidor válido.
+        trustServerCertificate: true
     }
 };
-// ---> FIN: Configuración de la Base de Datos
-
-
-// ========================================================================
-// === INICIO: LÓGICA ORIGINAL DE PROCESAMIENTO DE EXCEL (SIN CAMBIOS) ====
-// ========================================================================
 
 /**
  * Valida y limpia los datos de una fila de Excel
@@ -134,7 +122,6 @@ async function readExcelFileMain(filePath) {
  * @returns {Promise<string>} Ruta del archivo generado
  */
 async function exportCleanedDataToExcelMain(jsonData, outputPath) {
-    // ... (Tu función de exportación es excelente, la dejo exactamente igual)
     if (!Array.isArray(jsonData) || jsonData.length === 0) {
         throw new Error('No hay datos válidos para exportar');
     }
@@ -179,21 +166,17 @@ async function exportCleanedDataToExcelMain(jsonData, outputPath) {
     }
 }
 
-// ======================================================================
-// === FIN: LÓGICA ORIGINAL DE PROCESAMIENTO DE EXCEL (SIN CAMBIOS) ====
-// ======================================================================
+
 
 
 /**
  * Crea la ventana principal de la aplicación
  */
 function createWindow() {
-    // ... (Tu función createWindow es perfecta, no necesita cambios)
     const mainWindow = new BrowserWindow({
         width: 1280, height: 800, minWidth: 800, minHeight: 600, show: false,
         webPreferences: {
-            // Asegúrate de que el nombre del preload script coincida con el que creamos
-            preload: path.join(__dirname, 'preload.js'), // Nombre estandarizado
+            preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false, contextIsolation: true, sandbox: true, enableRemoteModule: false
         },
         icon: path.join(__dirname, 'assets/icon.png')
@@ -207,13 +190,8 @@ function createWindow() {
     return mainWindow;
 }
 
-
-// ======================================================================
-// === INICIO: MANEJADORES DE IPC (EXISTENTES Y NUEVOS) ==================
-// ======================================================================
-
 /**
- * Manejador para el diálogo de apertura de archivo (EXISTENTE)
+ * Manejador para el diálogo de apertura de archivo
  */
 ipcMain.handle('open-file-dialog', async () => {
     try {
@@ -237,7 +215,7 @@ ipcMain.handle('open-file-dialog', async () => {
 });
 
 /**
- * Manejador para procesar y exportar el archivo Excel (EXISTENTE)
+ * Manejador para procesar y exportar el archivo Excel
  */
 ipcMain.handle('process-excel-and-export', async (event, filePath) => {
     try {
@@ -256,16 +234,15 @@ ipcMain.handle('process-excel-and-export', async (event, filePath) => {
 });
 
 
-// ---> INICIO: NUEVOS MANEJADORES Y LÓGICA DE BASE DE DATOS <---
+
 
 /**
- * Manejador NUEVO para leer un archivo Excel y devolver los datos en formato JSON.
+ * Manejador para leer un archivo Excel y devolver los datos en formato JSON.
  * Se usará para preparar los datos antes de enviarlos a la BD.
  */
 ipcMain.handle('read-cleaned-excel', async (event, filePath) => {
     try {
         if (!filePath) throw new Error('No se proporcionó una ruta de archivo.');
-        // Reutilizamos tu función de lectura y limpieza. ¡Perfecto!
         const jsonData = await readExcelFileMain(filePath);
         if (!jsonData || jsonData.length === 0) {
             return { success: false, error: 'El archivo no contiene datos válidos después de la limpieza.' };
@@ -384,17 +361,13 @@ ipcMain.handle('get-system-info', () => {
     }
 });
 
-// ---> FIN: NUEVOS MANEJADORES Y LÓGICA DE BASE DE DATOS <---
-
-// ======================================================================
-// === FIN: MANEJADORES DE IPC ==========================================
-// ======================================================================
 
 
 
-// ======================================================================
-// === INICIO: CÓDIGO DE ARRANQUE DE LA APP (SIN CAMBIOS) ================
-// ======================================================================
+
+
+
+
 
 app.setName('Procesador de Excel');
 const gotTheLock = app.requestSingleInstanceLock();
@@ -430,6 +403,3 @@ if (!gotTheLock) {
         dialog.showErrorBox('Error', `Error en la aplicación: ${reason.message || reason}`);
     });
 }
-// ======================================================================
-// === FIN: CÓDIGO DE ARRANQUE DE LA APP (SIN CAMBIOS) ===================
-// ======================================================================
