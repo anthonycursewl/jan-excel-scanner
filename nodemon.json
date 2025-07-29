@@ -1,0 +1,11 @@
+{
+  "watch": [
+    "mainori.js",
+    "preload.js",
+    "jan.config.js",
+    "renderer/",
+    "assets/"
+  ],
+  "exec": "electron .",
+  "ext": "js,html,css,json"
+}

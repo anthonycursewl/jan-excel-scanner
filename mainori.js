@@ -346,7 +346,7 @@ ipcMain.handle('get-system-info', () => {
             success: true,
             data: {
                 cpuCount: os.cpus().length,
-                totalMemory: (os.totalmem() / (1024 ** 3)).toFixed(2) + ' GB', // Memoria en GB
+                totalMemory: (os.totalmem() / (1024 ** 3)).toFixed(2) + ' GB',
             }
         };
     } catch (error) {

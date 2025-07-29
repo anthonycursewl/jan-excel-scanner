@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "start": "electron .",
+    "dev": "nodemon --watch mainori.js --watch preload.js --watch jan.config.js --exec \"electron .\"",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "pack": "electron-builder --dir", 
+    "pack": "electron-builder --dir",
     "dist": "electron-builder"
   },
   "keywords": [],
@@ -16,6 +17,7 @@
   "devDependencies": {
     "electron": "^37.2.0",
     "electron-builder": "^26.0.12",
+    "nodemon": "^3.1.10",
     "standard": "^17.1.2"
   },
   "eslintConfig": {
