@@ -1,33 +1,14 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
-const path = require('node:path');
-const fs = require('fs').promises;
-const ExcelJS = require('exceljs');
-const { Connection, Request, TYPES } = require('tedious');
-const os = require('os');
+import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import { fileURLToPath } from 'url';
+import path from 'path';
+import { promises as fs } from 'fs';
+import ExcelJS from 'exceljs';
+import { Connection, Request, TYPES } from 'tedious';
+import os from 'os';
+import { MAIN_CONFIG } from './jan.config.js';
 
-const CONFIG = {
-    ROWS_TO_SKIP: 3,
-    REQUIRED_FIELDS: ['item', 'n_partida', 'nombre_del_articulo'],
-    EXCEL_EXTENSIONS: ['xlsx', 'xls'],
-    OUTPUT_FILENAME: 'PACKING_limpio.xlsx',
-    WINDOWS_SIZE: { width: 400, height: 500 }
-};
-
-const dbConfig = {
-    server: 'TU_SERVIDOR_SQL',
-    authentication: {
-        type: 'default',
-        options: {
-            userName: 'TU_USUARIO',
-            password: 'TU_CONTRASEÑA'
-        }
-    },
-    options: {
-        encrypt: true,
-        database: 'TU_BASE_DE_DATOS',
-        trustServerCertificate: true
-    }
-};
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * Valida y limpia los datos de una fila de Excel
@@ -67,7 +48,7 @@ function processExcelRow(row, rowNumber) {
             kg: getCellValue(18, 'number')
         };
 
-        const missingFields = CONFIG.REQUIRED_FIELDS.filter(field => 
+        const missingFields = MAIN_CONFIG.REQUIRED_FIELDS.filter(field => 
             rowData[field] === null || rowData[field] === '' || rowData[field] === undefined
         );
 
@@ -102,7 +83,7 @@ async function readExcelFileMain(filePath) {
 
         const jsonData = [];
         worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
-            if (rowNumber <= CONFIG.ROWS_TO_SKIP) return;
+            if (rowNumber <= MAIN_CONFIG.ROWS_TO_SKIP) return;
             const rowData = processExcelRow(row, rowNumber);
             if (rowData) jsonData.push(rowData);
         });
@@ -167,30 +148,43 @@ async function exportCleanedDataToExcelMain(jsonData, outputPath) {
     }
 }
 
-
-
-
 /**
  * Crea la ventana principal de la aplicación
  */
 function createWindow() {
     const mainWindow = new BrowserWindow({
-        width: CONFIG.WINDOWS_SIZE.width, 
-        height: CONFIG.WINDOWS_SIZE.height, 
-        minWidth: CONFIG.WINDOWS_SIZE.width, 
-        minHeight: CONFIG.WINDOWS_SIZE.height, show: false,
+        width: MAIN_CONFIG.WINDOWS_SIZE.width, 
+        height: MAIN_CONFIG.WINDOWS_SIZE.height, 
+        minWidth: MAIN_CONFIG.WINDOWS_SIZE.width, 
+        minHeight: MAIN_CONFIG.WINDOWS_SIZE.height, 
+        show: false,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
-            nodeIntegration: false, contextIsolation: true, sandbox: true, enableRemoteModule: false
+            nodeIntegration: false,
+            contextIsolation: true,
+            sandbox: true,
+            enableRemoteModule: false,
+            nodeIntegrationInWorker: false,
+            nodeIntegrationInSubFrames: false,
+            webSecurity: true,
+            allowRunningInsecureContent: false
         },
         icon: path.join(__dirname, 'assets/icon.png')
     });
+
     mainWindow.loadFile('index.html');
+    
     mainWindow.once('ready-to-show', () => {
         mainWindow.show();
-        if (process.env.NODE_ENV === 'development') mainWindow.webContents.openDevTools();
+        if (process.env.NODE_ENV === 'development') {
+            mainWindow.webContents.openDevTools({ mode: 'detach' });
+        }
     });
-    mainWindow.on('closed', () => { mainWindow.destroy(); });
+
+    mainWindow.on('closed', () => {
+        mainWindow.destroy();
+    });
+
     return mainWindow;
 }
 
@@ -202,7 +196,7 @@ ipcMain.handle('open-file-dialog', async () => {
         const { canceled, filePaths } = await dialog.showOpenDialog({
             title: 'Seleccionar archivo Excel', properties: ['openFile'],
             filters: [
-                { name: 'Archivos Excel', extensions: CONFIG.EXCEL_EXTENSIONS },
+                { name: 'Archivos Excel', extensions: MAIN_CONFIG.EXCEL_EXTENSIONS },
                 { name: 'Todos los archivos', extensions: ['*'] }
             ]
         });
@@ -228,7 +222,7 @@ ipcMain.handle('process-excel-and-export', async (event, filePath) => {
         if (stats.size === 0) throw new Error('El archivo está vacío');
         const cleanedData = await readExcelFileMain(filePath);
         if (!cleanedData || cleanedData.length === 0) throw new Error('No se encontraron datos válidos para exportar');
-        const outputPath = path.join(app.getPath('documents'), `${path.parse(filePath).name}_${CONFIG.OUTPUT_FILENAME}`);
+        const outputPath = path.join(app.getPath('documents'), `${path.parse(filePath).name}_${MAIN_CONFIG.OUTPUT_FILENAME}`);
         const savedPath = await exportCleanedDataToExcelMain(cleanedData, outputPath);
         return { success: true, outputPath: savedPath, processedRows: cleanedData.length };
     } catch (error) {
@@ -364,12 +358,6 @@ ipcMain.handle('get-system-info', () => {
         return { success: false, error: "No se pudo obtener la información del sistema." };
     }
 });
-
-
-
-
-
-
 
 
 

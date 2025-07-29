@@ -1,35 +1,34 @@
-function isApiReady() {
+// Utilidades
+export const isApiReady = () => {
     return window.api && window.api.openFileDialog && window.api.processExcelAndExport;
-}
+};
 
-function showStatus(message, type = 'info') {
-    const colors = {
-        info: 'blue',
-        success: 'green',
-        warning: 'orange',
-        error: 'red',
-        default: 'black'
-    };
-    
-    const statusMessage = document.getElementById('statusMessage') || createStatusMessage();
-    statusMessage.textContent = message;
-    statusMessage.style.color = colors[type] || colors.default;
-    
-    // Hacer scroll al mensaje
-    statusMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
+const colors = {
+    info: 'blue',
+    success: 'green',
+    warning: 'orange',
+    error: 'red',
+    default: 'black'
+};
 
 // Función para crear el elemento de estado si no existe
-function createStatusMessage() {
+const createStatusMessage = () => {
     const statusMessage = document.createElement('p');
     statusMessage.id = 'statusMessage';
     document.body.appendChild(statusMessage);
     return statusMessage;
-}
+};
 
-// Función para manejar el clic en el botón
-async function handleTabularClick() {
-    console.log("buenas tarddfñlkdlñsfd")
+export const showStatus = (message, type = 'info') => {
+    const statusMessage = document.getElementById('statusMessage') || createStatusMessage();
+    statusMessage.textContent = message;
+    statusMessage.style.color = colors[type] || colors.default;
+    statusMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+};
+
+// Función principal para manejar el proceso
+export const handleTabularClick = async () => {
+    console.log("Iniciando proceso de tabulación...");
     showStatus('Iniciando selección y procesamiento de Excel...', 'info');
 
     try {
@@ -46,69 +45,49 @@ async function handleTabularClick() {
 
         const result = await window.api.processExcelAndExport(filePath);
 
-        if (result && result.success) {
+        if (result?.success) {
             showStatus(`¡Proceso completado! Archivo limpio guardado en: ${result.outputPath}`, 'success');
             console.log('Proceso finalizado. Archivo limpio guardado en:', result.outputPath);
+            return result;
         } else {
-            const errorMessage = result?.error || 'Error desconocido durante el procesamiento';
-            showStatus(`Error durante el procesamiento: ${errorMessage}`, 'error');
-            console.error('Error durante el procesamiento del archivo:', errorMessage);
+            throw new Error(result?.error || 'Error desconocido durante el procesamiento');
         }
     } catch (error) {
         const errorMessage = error.message || 'Error desconocido';
-        showStatus(`Error crítico: ${errorMessage}`, 'error');
-        console.error('Error al abrir diálogo o procesar archivo:', error);
+        showStatus(`Error: ${errorMessage}`, 'error');
+        console.error('Error al procesar el archivo:', error);
+        throw error;
     }
-}
+};
 
-// Inicialización cuando el DOM esté listo
-// tabular_limpio.js (Versión simplificada para depuración)
-document.addEventListener('DOMContentLoaded', () => {
-    const tabularButton = document.getElementById('Tabular');
-    const statusMessage = document.getElementById('statusMessage');
+// Inicialización
+export const initTabular = () => {
+    document.addEventListener('DOMContentLoaded', () => {
+        const tabularButton = document.getElementById('Tabular');
+        const statusMessage = document.getElementById('statusMessage');
 
-    if (tabularButton) {
-        console.log('Botón "Tabular" encontrado. Añadiendo listener.');
+        if (!tabularButton) {
+            console.error('Error: No se encontró el botón con id "Tabular".');
+            return;
+        }
+
+        console.log('Botón "Tabular" encontrado. Configurando manejador de eventos.');
 
         tabularButton.addEventListener('click', async () => {
-            console.log('¡Botón clickeado!'); // <-- ¿Ves esto en la consola?
-
-            // Comprobamos si la API existe JUSTO antes de usarla
-            if (typeof window.api?.openFileDialog !== 'function') {
-                const errorMsg = 'Error Crítico: window.api.openFileDialog no es una función. ¿El script preload.js cargó correctamente?';
+            if (!isApiReady()) {
+                const errorMsg = 'Error: La API de Electron no está disponible. ¿Está cargado el preload correctamente?';
                 console.error(errorMsg);
-                statusMessage.textContent = errorMsg;
-                statusMessage.style.color = 'red';
+                showStatus(errorMsg, 'error');
                 return;
             }
 
-            statusMessage.textContent = 'Abriendo selector de archivos...';
-            statusMessage.style.color = 'blue';
-
             try {
-                const filePath = await window.api.openFileDialog();
-
-                if (filePath) {
-                    statusMessage.textContent = `Procesando: ${filePath}`;
-                    const result = await window.api.processAndExport(filePath);
-                    if (result.success) {
-                        statusMessage.textContent = `¡Éxito! Guardado en: ${result.outputPath}`;
-                        statusMessage.style.color = 'green';
-                    } else {
-                        throw new Error(result.error);
-                    }
-                } else {
-                    statusMessage.textContent = 'Operación cancelada.';
-                    statusMessage.style.color = 'orange';
-                }
+                await handleTabularClick();
             } catch (error) {
-                console.error('Error en el proceso:', error);
-                statusMessage.textContent = `Error: ${error.message}`;
-                statusMessage.style.color = 'red';
+                console.error('Error en el proceso de tabulación:', error);
             }
         });
+    });
+};
 
-    } else {
-        console.error('Error: No se encontró el botón con id "Tabular".');
-    }
-});
+initTabular();
