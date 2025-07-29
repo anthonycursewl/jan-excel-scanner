@@ -22,7 +22,6 @@ Aplicación de escritorio construida con Electron para limpiar archivos Excel y 
 3. Configura tus credenciales de SQL Server en el archivo [`mainori.js`](mainori.js):
 
    ```js
-   // ...existing code...
    const dbConfig = {
        server: 'TU_SERVIDOR_SQL',
        authentication: {
@@ -38,7 +37,6 @@ Aplicación de escritorio construida con Electron para limpiar archivos Excel y 
            trustServerCertificate: true
        }
    };
-   // ...existing code...
    ```
 
 ## Uso
@@ -55,7 +53,7 @@ Aplicación de escritorio construida con Electron para limpiar archivos Excel y 
 ## Estructura del Proyecto
 
 - [`mainori.js`](mainori.js): Lógica principal de Electron y procesamiento de archivos.
-- [`preload.js`](preload.js): API segura para comunicación entre frontend y backend.
+- [`preload.cjs`](preload.cjs): API segura para comunicación entre frontend y backend.
 - [`tabular_limpio.js`](tabular_limpio.js): Lógica de la interfaz y manejo de eventos.
 - [`index.html`](index.html), [`index.css`](index.css): Interfaz de usuario.
 
@@ -70,7 +68,9 @@ Aplicación de escritorio construida con Electron para limpiar archivos Excel y 
 
 - Asegúrate de tener acceso a la base de datos SQL Server y de que la tabla `PackingItems` existe con las columnas requeridas.
 - Para producción, utiliza variables de entorno para las credenciales.
+- Información detallada en el archivo `.env.example`.
 
 ---
 
 Desarrollado por Jandrey.
+https://github.com/janndrey 
