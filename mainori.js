@@ -9,7 +9,8 @@ const CONFIG = {
     ROWS_TO_SKIP: 3,
     REQUIRED_FIELDS: ['item', 'n_partida', 'nombre_del_articulo'],
     EXCEL_EXTENSIONS: ['xlsx', 'xls'],
-    OUTPUT_FILENAME: 'PACKING_limpio.xlsx'
+    OUTPUT_FILENAME: 'PACKING_limpio.xlsx',
+    WINDOWS_SIZE: { width: 400, height: 500 }
 };
 
 const dbConfig = {
@@ -174,7 +175,10 @@ async function exportCleanedDataToExcelMain(jsonData, outputPath) {
  */
 function createWindow() {
     const mainWindow = new BrowserWindow({
-        width: 200, height: 500, minWidth: 400, minHeight: 500, show: false,
+        width: CONFIG.WINDOWS_SIZE.width, 
+        height: CONFIG.WINDOWS_SIZE.height, 
+        minWidth: CONFIG.WINDOWS_SIZE.width, 
+        minHeight: CONFIG.WINDOWS_SIZE.height, show: false,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false, contextIsolation: true, sandbox: true, enableRemoteModule: false
